@@ -89,7 +89,7 @@ const startSummary = () => {
     },
     onComplete: function () {
       console.log("动画完成");
-      emits("confirm", true);
+      emits("confirm");
     }
   });
 };
