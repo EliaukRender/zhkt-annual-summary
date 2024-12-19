@@ -7,8 +7,8 @@
 
     <div class="agreement">
       <van-radio :model-value="check" @click="changeCheck" name="1" checked-color="#ee0a24"
-        >同意畅言智慧课堂查询并使用个人数据</van-radio
-      >
+        >同意畅言智慧课堂查询并使用个人数据
+      </van-radio>
       <span>《授权协议》</span>
     </div>
 
@@ -128,6 +128,10 @@ const resetAnimation = () => {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    ::v-deep .van-radio__label {
+      color: #ffffff !important;
+    }
   }
 
   .van-popup {
