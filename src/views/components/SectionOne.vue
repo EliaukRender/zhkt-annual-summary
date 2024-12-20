@@ -8,6 +8,7 @@
 <script setup>
 import { watch, onMounted } from "vue";
 import gsap from "gsap";
+import { useGetTargetEle } from "../../hooks/useGetTargetEle.js";
 
 const props = defineProps({
   // 滚动标志
@@ -28,30 +29,36 @@ const SectionValue = 1;
 watch(
   () => props.currentSection,
   newValue => {
-    if (newValue === SectionValue) {
-      startAnimation();
-    } else {
-      resetAnimation();
-    }
+    newValue === SectionValue ? startAnimation() : resetAnimation();
   }
 );
 
-onMounted(() => {});
+onMounted(() => {
+  setInitStyle();
+});
 
-const startAnimation = () => {
-  gsap.fromTo(".section-one .text", { opacity: 0, y: 0 }, { opacity: 1, y: -100, duration: 1 });
-  gsap.fromTo(
-    " .section-one .img",
-    { opacity: 0.2, y: 0, rotation: 0 },
-    { opacity: 1, y: 100, rotation: 360, duration: 1 }
-  );
+// 动画class类名定义
+const { getTargetClass } = useGetTargetEle("section-one");
+const text = getTargetClass("text");
+const img = getTargetClass("img");
+
+// 设置初始css样式
+const setInitStyle = () => {
+  gsap.set(text, { opacity: 0, y: 0 });
+  gsap.set(img, { opacity: 0, y: 0, rotation: 0 });
 };
 
+// 开始动画
+const startAnimation = () => {
+  gsap.fromTo(text, { opacity: 0, y: 0 }, { opacity: 1, y: -100, duration: 1 });
+  gsap.fromTo(img, { opacity: 0, y: 0, rotation: 0 }, { opacity: 1, y: 100, rotation: 360, duration: 1 });
+};
+
+// 重置动画与css样式
 const resetAnimation = () => {
-  gsap.killTweensOf(".section-one .text");
-  gsap.killTweensOf(".section-one .img");
-  gsap.set(".section-one .text", { opacity: 0, y: 0 });
-  gsap.set(".section-one .img", { opacity: 0.5, y: 0, rotation: 0 });
+  gsap.killTweensOf(text);
+  gsap.killTweensOf(img);
+  setInitStyle();
 };
 </script>
 

@@ -25,6 +25,7 @@
 <script setup>
 import { ref, watch, defineEmits } from "vue";
 import gsap from "gsap";
+import { useGetTargetEle } from "../../hooks/useGetTargetEle.js";
 
 const props = defineProps({
   // 滚动标志
@@ -79,10 +80,14 @@ const confirm = () => {
 
 const emits = defineEmits(["confirm"]);
 
+// 动画class类名定义
+const { getTargetClass } = useGetTargetEle("section-zero");
+const sectionZero = getTargetClass("");
+
 // 开启报告
 const startSummary = () => {
-  gsap.to(".section-zero", {
-    opacity: 0,
+  gsap.to(sectionZero, {
+    opacity: 0.2,
     duration: 0.5,
     onStart: function () {
       console.log("动画开始");
@@ -96,8 +101,8 @@ const startSummary = () => {
 
 // 重置动画
 const resetAnimation = () => {
-  gsap.killTweensOf(".section-zero");
-  gsap.set(".section-zero", { opacity: 1 });
+  gsap.killTweensOf(sectionZero);
+  gsap.set(sectionZero, { opacity: 1 });
 };
 </script>
 

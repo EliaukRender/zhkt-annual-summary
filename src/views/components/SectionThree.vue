@@ -7,6 +7,7 @@
 <script setup>
 import { watch } from "vue";
 import gsap from "gsap";
+import { useGetTargetEle } from "../../hooks/useGetTargetEle.js";
 
 const props = defineProps({
   // 滚动标志
@@ -27,25 +28,26 @@ const SectionValue = 3;
 watch(
   () => props.currentSection,
   newValue => {
-    if (newValue === SectionValue) {
-      startAnimation();
-    } else {
-      resetAnimation();
-    }
+    newValue === SectionValue ? startAnimation() : resetAnimation();
   }
 );
 
+// 动画class类名定义
+const { getTargetClass } = useGetTargetEle("section-three");
+const text = getTargetClass("text");
+
+// 开始动画
 const startAnimation = () => {
   gsap.fromTo(
-    ".section-three .text",
+    text,
     { opacity: 0, y: -500, rotation: 0 },
     { opacity: 1, y: 0, duration: 1, rotation: 360, ease: "power2.inOut" }
   );
 };
 
 const resetAnimation = () => {
-  gsap.killTweensOf(".section-three .text");
-  gsap.set(".section-three .text", { opacity: 0, y: 0 });
+  gsap.killTweensOf(text);
+  gsap.set(text, { opacity: 0, y: 0 });
 };
 </script>
 

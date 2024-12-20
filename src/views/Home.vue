@@ -60,7 +60,7 @@ const handleTouchEnd = event => {
   const distance = touchStartY.value - touchEndY.value;
   // 上划
   if (distance > TouchMoveDistance) {
-    if (!isConfirmed.value) return; // 第一个Section + 没确认协议 ，不允许上划
+    if (!isConfirmed.value) return; // 第一个Section且没确认协议，不允许上划
     scrollUp();
   }
   // 下划
