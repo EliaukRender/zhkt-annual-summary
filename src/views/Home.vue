@@ -24,7 +24,7 @@ const sectionCmpList = [SectionZero, SectionOne, SectionTwo, SectionThree];
 const containerRef = ref();
 let touchStartY = ref(null);
 let touchEndY = ref(null);
-const currentSection = ref(0); // 当前Section号
+const currentSection = ref(0); // 当前Section的序号
 const isScrolling = ref(false);
 const isConfirmed = ref(false); // 协议是否确认
 const TouchMoveDistance = 35;
@@ -34,23 +34,42 @@ onMounted(() => {
   containerRef.value.addEventListener("touchstart", handleTouchStart);
   containerRef.value.addEventListener("touchmove", handleTouchMove);
   containerRef.value.addEventListener("touchend", handleTouchEnd);
+  containerRef.value.addEventListener("wheel", handleWheel);
 });
 
 onBeforeUnmount(() => {
   containerRef.value.removeEventListener("touchstart", handleTouchStart);
   containerRef.value.removeEventListener("touchmove", handleTouchMove);
   containerRef.value.removeEventListener("touchend", handleTouchEnd);
+  containerRef.value.removeEventListener("wheel", handleWheel);
 });
 
+// 鼠标滚动
+const handleWheel = event => {
+  event.preventDefault();
+  // 页面上翻
+  if (event.deltaY > 0) {
+    if (!isConfirmed.value) return; // 第一个Section且没确认协议，不允许上划
+    scrollUp();
+  } else {
+    // 页面下翻
+    if (currentSection.value === 1) return; // 不允许回退到第一个Section
+    scrollDown();
+  }
+};
+
+// touch开始
 const handleTouchStart = event => {
   touchStartY.value = event.touches[0].clientY;
 };
 
+// touch移动
 const handleTouchMove = event => {
   event.preventDefault();
   touchEndY.value = event.touches[0].clientY;
 };
 
+// touch结束
 const handleTouchEnd = event => {
   if (!touchStartY || !touchEndY.value) {
     touchStartY.value = null;
@@ -58,12 +77,12 @@ const handleTouchEnd = event => {
     return;
   }
   const distance = touchStartY.value - touchEndY.value;
-  // 上划
+  // touch上划，页面上翻
   if (distance > TouchMoveDistance) {
     if (!isConfirmed.value) return; // 第一个Section且没确认协议，不允许上划
     scrollUp();
   }
-  // 下划
+  // touch下划，页面下翻
   if (distance < -TouchMoveDistance) {
     if (currentSection.value === 1) return; // 不允许回退到第一个Section
     scrollDown();
@@ -72,7 +91,7 @@ const handleTouchEnd = event => {
   touchEndY.value = null;
 };
 
-// 页面上划
+// 页面上翻一页
 const scrollUp = () => {
   if (currentSection.value === sectionCmpList.length - 1) return;
   if (isScrolling.value) return;
@@ -80,7 +99,7 @@ const scrollUp = () => {
   handleSectionScroll(window.innerHeight * (currentSection.value + 1), 0.5, currentSection.value + 1);
 };
 
-// 页面下划
+// 页面下翻一页
 const scrollDown = () => {
   if (!currentSection.value) return;
   if (isScrolling.value) return;
@@ -100,7 +119,7 @@ const handleSectionScroll = (scrollToValue, duration, sectionValue) => {
     duration: duration,
     ease: "power2.inOut",
     onComplete: () => {
-      isScrolling.value = false; // 滚动结束
+      isScrolling.value = false; // 当前页面滚动结束
       currentSection.value = sectionValue; // 滚动结束时更新currentSection的值
     }
   });
@@ -117,5 +136,6 @@ const handleConfirm = () => {
 .home {
   width: 100%;
   height: 100%;
+  overflow-y: hidden;
 }
 </style>
