@@ -15,15 +15,15 @@
     <van-popup v-model:show="popupVisible" position="bottom" :style="{ height: '30%' }">
       <div>点击同意，表示已阅读且同意《授权协议》，同时开启年度报告</div>
       <div class="btn-group">
-        <van-button @click="cancel">取消</van-button>
-        <van-button type="success" @click="confirm">同意</van-button>
+        <van-button @click.stop="cancel">取消</van-button>
+        <van-button type="success" @click.stop="confirm">同意</van-button>
       </div>
     </van-popup>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, defineEmits } from "vue";
+import { ref, watch, defineEmits, defineExpose } from "vue";
 import gsap from "gsap";
 import { useGetTargetEle } from "../../hooks/useGetTargetEle.js";
 
@@ -56,6 +56,7 @@ watch(
 
 // 点击单选
 const changeCheck = () => {
+  console.log("changeCheck", check.value);
   check.value = check.value.length ? "" : "1";
 };
 
@@ -69,6 +70,7 @@ const clickSummary = () => {
 };
 
 const cancel = () => {
+  console.log("cancel", check.value);
   popupVisible.value = false;
 };
 
@@ -104,6 +106,11 @@ const resetAnimation = () => {
   gsap.killTweensOf(sectionZero);
   gsap.set(sectionZero, { opacity: 1 });
 };
+
+defineExpose({
+  popupVisible,
+  check
+});
 </script>
 
 <style lang="scss" scoped>

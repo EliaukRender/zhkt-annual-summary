@@ -2,6 +2,7 @@
   <div class="home" ref="containerRef">
     <div v-for="(item, index) in sectionCmpList" :key="index">
       <component
+        ref="sectionRefList"
         :is="item"
         :isScrolling="isScrolling"
         :currentSection="currentSection"
@@ -12,7 +13,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeUnmount } from "vue";
+import { onMounted, ref, onBeforeUnmount, computed } from "vue";
 import SectionZero from "./components/SectionZero.vue";
 import SectionOne from "./components/SectionOne.vue";
 import SectionTwo from "./components/SectionTwo.vue";
@@ -26,8 +27,12 @@ let touchStartY = ref(null);
 let touchEndY = ref(null);
 const currentSection = ref(0); // 当前Section的序号
 const isScrolling = ref(false);
-const isConfirmed = ref(false); // 协议是否确认
+// 协议是否确认
+const isConfirmed = computed(() => {
+  return sectionRefList.value[0] ? !!sectionRefList.value[0].check.length : false;
+});
 const TouchMoveDistance = 35;
+const sectionRefList = ref([]); // Section组件的Refs
 
 onMounted(() => {
   gsap.registerPlugin(ScrollToPlugin);
@@ -49,7 +54,11 @@ const handleWheel = event => {
   event.preventDefault();
   // 页面上翻
   if (event.deltaY > 0) {
-    if (!isConfirmed.value) return; // 第一个Section且没确认协议，不允许上划
+    // 第一个Section且没确认协议，不允许上划
+    if (currentSection.value === 0 && !isConfirmed.value) {
+      sectionRefList.value[0].popupVisible = true;
+      return;
+    }
     scrollUp();
   } else {
     // 页面下翻
@@ -71,20 +80,18 @@ const handleTouchMove = event => {
 
 // touch结束
 const handleTouchEnd = event => {
-  if (!touchStartY || !touchEndY.value) {
-    touchStartY.value = null;
-    touchEndY.value = null;
-    return;
-  }
+  if (!touchStartY || !touchEndY.value) return;
   const distance = touchStartY.value - touchEndY.value;
-  // touch上划，页面上翻
+  // 页面上翻
   if (distance > TouchMoveDistance) {
-    if (!isConfirmed.value) return; // 第一个Section且没确认协议，不允许上划
-    scrollUp();
+    if (currentSection.value === 0 && !isConfirmed.value) {
+      sectionRefList.value[0].popupVisible = true; // 打开确定协议的弹窗
+    } else {
+      scrollUp();
+    }
   }
-  // touch下划，页面下翻
-  if (distance < -TouchMoveDistance) {
-    if (currentSection.value === 1) return; // 不允许回退到第一个Section
+  // 页面下翻
+  if (distance < -TouchMoveDistance && currentSection.value !== 1) {
     scrollDown();
   }
   touchStartY.value = null;
